@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>Quiz Admin</title>
+
+<link rel="stylesheet" href="admin.css">
+
+
+</head>
+
+<body>
+
+
+<!-- Login -->
+
+<div id="loginScreen" class="page">
+
+    <div class="card loginCard">
+
+        <h1>Quiz Admin</h1>
+
+        <p class="subtitle">
+            Sign in to manage the quiz.
+        </p>
+
+        <input
+            type="email"
+            id="email"
+            placeholder="Email"
+        >
+
+        <input
+            type="password"
+            id="password"
+            placeholder="Password"
+        >
+
+        <button id="loginButton">
+            Login
+        </button>
+
+        <p id="loginError" class="error"></p>
+
+    </div>
+
+</div>
+
+
+<!-- Admin -->
+
+<div
+    id="adminScreen"
+    class="page"
+    style="display: none;"
+>
+
+    <div class="adminContainer">
+
+        <div class="adminHeader">
+
+            <div>
+                <h1>Quiz Administration</h1>
+
+                <p class="subtitle">
+                    Create a new question
+                </p>
+            </div>
+
+            <button
+                id="logoutButton"
+                class="secondaryButton"
+            >
+                Logout
+            </button>
+
+        </div>
+
+
+        <div class="card questionCard">
+
+            <h2>New Question</h2>
+
+
+            <label for="questionText">
+                Question
+            </label>
+
+            <input
+                type="text"
+                id="questionText"
+                placeholder="Enter the question..."
+            >
+
+
+            <div class="answersHeader">
+
+                <h3>Answers</h3>
+
+                <span>
+                    The first answer is always correct.
+                </span>
+
+            </div>
+
+
+            <div id="answers">
+            </div>
+
+
+            <button
+                id="addAnswerButton"
+                class="secondaryButton"
+            >
+                + Add Answer
+            </button>
+
+
+            <button
+                id="saveQuestionButton"
+                class="primaryButton"
+            >
+                Save Question
+            </button>
+
+
+            <p id="status"></p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/admin.js"></script>
+
+
+</body>
+
+</html>

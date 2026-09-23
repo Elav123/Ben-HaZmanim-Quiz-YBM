@@ -1,0 +1,315 @@
+* {
+  box-sizing: border-box;
+  }
+
+body {
+margin: 0;
+min-height: 100vh;
+
+
+font-family: Arial, sans-serif;
+
+background: #f2f4f7;
+color: #222;
+
+
+}
+
+.page {
+min-height: 100vh;
+
+
+display: flex;
+justify-content: center;
+align-items: center;
+
+padding: 30px;
+
+
+}
+
+.card {
+background: white;
+
+
+border-radius: 12px;
+
+padding: 30px;
+
+box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.08);
+
+
+}
+
+.loginCard {
+width: 100%;
+max-width: 420px;
+
+
+text-align: center;
+
+
+}
+
+h1 {
+margin-top: 0;
+margin-bottom: 8px;
+}
+
+h2 {
+margin-top: 0;
+}
+
+.subtitle {
+margin-top: 0;
+margin-bottom: 25px;
+
+
+color: #666;
+
+
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+width: 100%;
+
+
+padding: 12px 14px;
+
+margin-bottom: 15px;
+
+border: 1px solid #ccc;
+border-radius: 7px;
+
+font-size: 16px;
+
+outline: none;
+
+
+}
+
+input:focus {
+border-color: #555;
+}
+
+button {
+border: none;
+border-radius: 7px;
+
+
+padding: 11px 18px;
+
+font-size: 15px;
+
+cursor: pointer;
+
+
+}
+
+button:disabled {
+opacity: 0.6;
+cursor: default;
+}
+
+.loginCard button {
+width: 100%;
+}
+
+.primaryButton {
+width: 100%;
+
+
+margin-top: 20px;
+
+background: #2563eb;
+color: white;
+
+
+}
+
+.primaryButton:hover {
+background: #1d4ed8;
+}
+
+.secondaryButton {
+background: #e5e7eb;
+color: #222;
+}
+
+.secondaryButton:hover {
+background: #d1d5db;
+}
+
+.adminContainer {
+width: 100%;
+max-width: 800px;
+}
+
+.adminHeader {
+display: flex;
+
+
+align-items: center;
+justify-content: space-between;
+
+margin-bottom: 20px;
+
+
+}
+
+.adminHeader h1 {
+margin-bottom: 5px;
+}
+
+.questionCard {
+width: 100%;
+}
+
+.questionCard label {
+display: block;
+
+
+margin-bottom: 7px;
+
+font-weight: bold;
+
+
+}
+
+.answersHeader {
+display: flex;
+
+
+align-items: baseline;
+justify-content: space-between;
+
+margin-top: 25px;
+margin-bottom: 10px;
+
+
+}
+
+.answersHeader h3 {
+margin: 0;
+}
+
+.answersHeader span {
+color: #777;
+font-size: 14px;
+}
+
+.answerRow {
+display: flex;
+
+
+align-items: center;
+
+gap: 10px;
+
+margin-bottom: 10px;
+
+padding: 10px;
+
+background: #f7f8fa;
+
+border: 1px solid #ddd;
+border-radius: 7px;
+
+
+}
+
+.answerNumber {
+width: 28px;
+
+
+text-align: center;
+
+font-weight: bold;
+
+color: #666;
+
+
+}
+
+.answerInput {
+flex: 1;
+
+
+margin: 0 !important;
+
+
+}
+
+.correctLabel {
+font-size: 13px;
+
+
+color: #16803c;
+
+font-weight: bold;
+
+white-space: nowrap;
+
+
+}
+
+#addAnswerButton {
+margin-top: 5px;
+}
+
+#status {
+margin-top: 15px;
+
+
+text-align: center;
+
+font-weight: bold;
+
+
+}
+
+.error {
+color: #c62828;
+
+
+min-height: 20px;
+
+
+}
+
+@media (max-width: 600px) {
+
+
+.page {
+    padding: 15px;
+}
+
+
+.card {
+    padding: 20px;
+}
+
+
+.adminHeader {
+    align-items: flex-start;
+
+    gap: 15px;
+}
+
+
+.answersHeader {
+    display: block;
+}
+
+
+.answersHeader span {
+    display: block;
+
+    margin-top: 5px;
+}
+
+
+}

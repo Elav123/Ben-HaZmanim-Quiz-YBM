@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Quiz</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ============================
+         Name screen
+         ============================ -->
+
+    <div id="nameScreen" class="screen">
+
+        <h1>Quiz</h1>
+
+        <p>
+            Enter your name to begin:
+        </p>
+
+        <input
+            type="text"
+            id="playerName"
+            placeholder="Your name"
+        >
+
+        <button id="startButton">
+            Start Quiz
+        </button>
+
+        <button id="adminButton">
+            Admin
+        </button>
+
+        <p
+            id="startError"
+            style="color: #c62828;"
+        ></p>
+
+    </div>
+
+
+    <!-- ============================
+         Quiz screen
+         ============================ -->
+<div
+    id="quizScreen"
+    class="screen"
+    style="display: none;"
+>
+    <div id="questionSelectorContainer">
+
+        <label for="questionSelector">
+            Question:
+        </label>
+
+        <select id="questionSelector"></select>
+
+    </div>
+
+    <h1 id="questionText">
+        Question
+    </h1>
+
+    <div id="answers"></div>
+
+    <button
+        id="nextButton"
+        disabled
+    >
+        Submit Answer
+    </button>
+
+</div>
+
+
+    <!-- ============================
+         Result screen
+         ============================ -->
+
+    <div
+        id="resultScreen"
+        class="screen"
+        style="display: none;"
+    >
+
+        <h1>
+            Quiz Finished!
+        </h1>
+
+        <p id="resultText">
+            Your score will appear here.
+        </p>
+
+        <button id="restartButton">
+            Play Again
+        </button>
+
+    </div>
+
+
+    <!-- ============================
+         JavaScript
+         ============================ -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="js/supabase.js"></script>
+
+    <script src="js/quiz.js"></script>
+
+
+    <script>
+        document
+            .getElementById("adminButton")
+            .addEventListener(
+                "click",
+                function()
+                {
+                    window.location.href =
+                        "admin.html";
+                }
+            );
+    </script>
+
+</body>
+</html>
+
