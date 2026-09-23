@@ -313,3 +313,116 @@ min-height: 20px;
 
 
 }
+
+/* Results */
+
+.resultsCard {
+    margin-top: 20px;
+}
+
+.resultsHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.resultsHeader .subtitle {
+    margin-bottom: 0;
+}
+
+.resultQuestion {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f7f8fa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.resultQuestion:first-child {
+    margin-top: 0;
+}
+
+.resultQuestionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.resultQuestionHeader h3 {
+    margin: 0;
+}
+
+.deleteQuestionButton {
+    background: #f8dddd;
+    color: #b42318;
+    white-space: nowrap;
+}
+
+.deleteQuestionButton:hover {
+    background: #f2caca;
+}
+
+.resultRow {
+    padding: 12px;
+    margin-top: 8px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.resultPlayer {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.resultAnswer {
+    margin-bottom: 5px;
+}
+
+.resultCorrect {
+    color: #16803c;
+    font-weight: bold;
+}
+
+.resultIncorrect {
+    color: #b42318;
+    font-weight: bold;
+}
+
+.resultDetails {
+    color: #666;
+    font-size: 13px;
+}
+
+.noResults {
+    color: #777;
+    font-style: italic;
+}
+
+.resultsError {
+    color: #c62828;
+    font-weight: bold;
+}
+
+@media (max-width: 600px) {
+    .resultsHeader {
+        display: block;
+    }
+
+    .resultsHeader button {
+        margin-top: 10px;
+    }
+
+    .resultQuestionHeader {
+        display: block;
+    }
+
+    .deleteQuestionButton {
+        margin-top: 10px;
+    }
+}
+
+

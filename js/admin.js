@@ -3,7 +3,12 @@ let answerCount = 0;
 // ============================
 // Get HTML elements
 // ============================
+const resultsContainer =
+    document.getElementById("resultsContainer");
 
+const refreshResultsButton =
+    document.getElementById("refreshResultsButton");
+	
 const loginScreen =
 document.getElementById("loginScreen");
 
@@ -42,8 +47,13 @@ checkLogin();
 // ============================
 
 loginButton.addEventListener(
-"click",
-login
+	"click",
+	login
+);
+
+refreshResultsButton.addEventListener(
+    "click",
+    loadResults
 );
 
 async function login()
@@ -144,22 +154,19 @@ if (data.session)
 
 function showAdminScreen()
 {
-loginScreen.style.display =
-"none";
+    loginScreen.style.display =
+        "none";
 
+    adminScreen.style.display =
+        "block";
 
-adminScreen.style.display =
-    "block";
+    if (answerCount === 0)
+    {
+        addAnswer();
+    }
 
-
-if (answerCount === 0)
-{
-    addAnswer();
+    loadResults();
 }
-
-
-}
-
 // ============================
 // Logout
 // ============================
@@ -460,3 +467,356 @@ saveQuestionButton.textContent =
 
 
 }
+
+async function loadResults()
+{
+    resultsContainer.innerHTML =
+        "<p>Loading results...</p>";
+
+    const {
+        data: questionsData,
+        error: questionsError
+    } =
+        await supabaseClient
+            .from("questions")
+            .select(
+                "id, question, created_at"
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: true
+                }
+            );
+
+    if (questionsError)
+    {
+        console.error(questionsError);
+
+        resultsContainer.innerHTML =
+            '<p class="resultsError">' +
+            "Failed to load questions: " +
+            questionsError.message +
+            "</p>";
+
+        return;
+    }
+
+    const {
+        data: answersData,
+        error: answersError
+    } =
+        await supabaseClient
+            .from("answers")
+            .select(
+                "id, question_id, answer_text, is_correct"
+            );
+
+    if (answersError)
+    {
+        console.error(answersError);
+
+        resultsContainer.innerHTML =
+            '<p class="resultsError">' +
+            "Failed to load answers: " +
+            answersError.message +
+            "</p>";
+
+        return;
+    }
+
+    const {
+        data: resultsData,
+        error: resultsError
+    } =
+        await supabaseClient
+            .from("results")
+            .select(
+                "id, question_id, answer_id, player_name, answer_time, created_at"
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: true
+                }
+            );
+
+    if (resultsError)
+    {
+        console.error(resultsError);
+
+        resultsContainer.innerHTML =
+            '<p class="resultsError">' +
+            "Failed to load results: " +
+            resultsError.message +
+            "</p>";
+
+        return;
+    }
+
+    resultsContainer.innerHTML = "";
+
+    if (questionsData.length === 0)
+    {
+        resultsContainer.innerHTML =
+            '<p class="noResults">' +
+            "There are no questions yet." +
+            "</p>";
+
+        return;
+    }
+
+    questionsData.forEach(
+        function(question)
+        {
+            const questionDiv =
+                document.createElement("div");
+
+            questionDiv.className =
+                "resultQuestion";
+
+            const header =
+                document.createElement("div");
+
+            header.className =
+                "resultQuestionHeader";
+
+            const title =
+                document.createElement("h3");
+
+            title.textContent =
+                question.question;
+
+            const deleteButton =
+                document.createElement("button");
+
+            deleteButton.type =
+                "button";
+
+            deleteButton.className =
+                "deleteQuestionButton";
+
+            deleteButton.textContent =
+                "Delete Question";
+
+            deleteButton.addEventListener(
+                "click",
+                function()
+                {
+                    deleteQuestion(
+                        question.id,
+                        question.question
+                    );
+                }
+            );
+
+            header.appendChild(title);
+            header.appendChild(deleteButton);
+
+            questionDiv.appendChild(header);
+
+            const questionResults =
+                resultsData.filter(
+                    function(result)
+                    {
+                        return (
+                            result.question_id ===
+                            question.id
+                        );
+                    }
+                );
+
+            if (questionResults.length === 0)
+            {
+                const noResults =
+                    document.createElement("p");
+
+                noResults.className =
+                    "noResults";
+
+                noResults.textContent =
+                    "No answers yet.";
+
+                questionDiv.appendChild(
+                    noResults
+                );
+            }
+            else
+            {
+                questionResults.forEach(
+                    function(result)
+                    {
+                        const resultDiv =
+                            document.createElement(
+                                "div"
+                            );
+
+                        resultDiv.className =
+                            "resultRow";
+
+                        const player =
+                            document.createElement(
+                                "div"
+                            );
+
+                        player.className =
+                            "resultPlayer";
+
+                        player.textContent =
+                            result.player_name;
+
+                        const answer =
+							answersData.find(
+								function(item)
+								{
+									return (
+										String(item.id) ===
+										String(result.answer_id)
+									);
+								}
+							);
+
+                        const answerText =
+                            document.createElement(
+                                "div"
+                            );
+
+                        answerText.className =
+                            "resultAnswer";
+
+                        if (answer)
+                        {
+                            answerText.textContent =
+                                "Answer: " +
+                                answer.answer_text;
+
+                            const resultType =
+                                document.createElement(
+                                    "span"
+                                );
+
+                            if (answer.is_correct)
+                            {
+                                resultType.className =
+                                    "resultCorrect";
+
+                                resultType.textContent =
+                                    " — Correct";
+                            }
+                            else
+                            {
+                                resultType.className =
+                                    "resultIncorrect";
+
+                                resultType.textContent =
+                                    " — Incorrect";
+                            }
+
+                            answerText.appendChild(
+                                resultType
+                            );
+                        }
+                        else
+                        {
+                            answerText.textContent =
+                                "Answer: Unknown";
+                        }
+
+                        const details =
+                            document.createElement(
+                                "div"
+                            );
+
+                        details.className =
+                            "resultDetails";
+
+                        const time =
+                            (
+                                result.answer_time /
+                                1000
+                            ).toFixed(2);
+
+                        const date =
+                            new Date(
+                                result.created_at
+                            );
+
+                        details.textContent =
+                            "Time: " +
+                            time +
+                            " seconds | " +
+                            date.toLocaleString();
+
+                        resultDiv.appendChild(
+                            player
+                        );
+
+                        resultDiv.appendChild(
+                            answerText
+                        );
+
+                        resultDiv.appendChild(
+                            details
+                        );
+
+                        questionDiv.appendChild(
+                            resultDiv
+                        );
+                    }
+                );
+            }
+
+            resultsContainer.appendChild(
+                questionDiv
+            );
+        }
+    );
+	console.log("Answers:", answersData);
+	console.log("Results:", resultsData);
+}
+
+async function deleteQuestion(
+    questionId,
+    questionText
+)
+{
+    const confirmed =
+        confirm(
+            "Delete this question?\n\n" +
+            questionText +
+            "\n\n" +
+            "This will also delete all of its answers and results."
+        );
+
+    if (!confirmed)
+    {
+        return;
+    }
+
+    const {
+        error
+    } =
+        await supabaseClient
+            .from("questions")
+            .delete()
+            .eq(
+                "id",
+                questionId
+            );
+
+    if (error)
+    {
+        console.error(error);
+
+        alert(
+            "Failed to delete question:\n" +
+            error.message
+        );
+
+        return;
+    }
+
+    loadResults();
+}
+
+
