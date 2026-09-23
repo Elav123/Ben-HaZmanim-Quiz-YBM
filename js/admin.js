@@ -172,24 +172,29 @@ function showAdminScreen()
 // ============================
 
 logoutButton.addEventListener(
-"click",
-async function()
-{
-await supabaseClient.auth.signOut();
+    "click",
+    async function()
+    {
+        await supabaseClient.auth.signOut();
 
+        adminScreen.style.display =
+            "none";
 
-    adminScreen.style.display =
-        "none";
+        loginScreen.style.display =
+            "flex";
 
-    loginScreen.style.display =
-        "flex";
+        document.getElementById(
+            "questionText"
+        ).value = "";
 
-    answersContainer.innerHTML = "";
+        answersContainer.innerHTML = "";
 
-    answerCount = 0;
-}
+        answerCount = 0;
 
+        addAnswer();
 
+        statusText.textContent = "";
+    }
 );
 
 // ============================

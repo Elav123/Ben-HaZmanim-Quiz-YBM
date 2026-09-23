@@ -96,6 +96,10 @@ async function startQuiz()
 
     currentQuestionIndex = 0;
 
+    /*
+        Start with a completely fresh quiz.
+    */
+    selectedAnswers.clear();
     answeredQuestions.clear();
 
     document.getElementById("nameScreen").style.display =
@@ -148,6 +152,7 @@ function createQuestionSelector()
             showQuestion();
         };
 }
+
 
 function showQuestion()
 {
@@ -448,6 +453,19 @@ async function nextQuestion()
                 selectedAnswer.id
             );
 
+            /*
+                Check whether all questions have now
+                been answered.
+            */
+            if (
+                answeredQuestions.size ===
+                questions.length
+            )
+            {
+                finishQuiz();
+                return;
+            }
+
             showQuestion();
 
             showSavedMessage(
@@ -485,6 +503,20 @@ async function nextQuestion()
         Tell the player that the result was saved.
     */
     showSavedMessage();
+
+    /*
+        Check if every question has now been submitted.
+    */
+    if (
+        answeredQuestions.size ===
+        questions.length
+    )
+    {
+        setTimeout(
+            finishQuiz,
+            2000
+        );
+    }
 }
 
 
@@ -613,6 +645,85 @@ function clearSavedMessage()
 }
 
 
+/*
+    Called after the final answer has been submitted.
+
+    The result screen is shown for 2 seconds,
+    then the player is returned to the name screen.
+*/
+function finishQuiz()
+{
+    document.getElementById(
+        "quizScreen"
+    ).style.display = "none";
+
+    document.getElementById(
+        "resultScreen"
+    ).style.display = "block";
+
+    setTimeout(
+        returnToLogin,
+        2000
+    );
+}
+
+
+/*
+    Reset everything so the next player starts
+    with a completely fresh quiz.
+*/
+function returnToLogin()
+{
+    document.getElementById(
+        "resultScreen"
+    ).style.display = "none";
+
+    document.getElementById(
+        "nameScreen"
+    ).style.display = "flex";
+
+    document.getElementById(
+        "playerName"
+    ).value = "";
+
+    questions = [];
+
+    currentQuestionIndex = 0;
+
+    playerName = "";
+
+    questionStartTime = 0;
+
+    selectedAnswer = null;
+
+    selectedAnswers.clear();
+
+    answeredQuestions.clear();
+
+    document.getElementById(
+        "answers"
+    ).innerHTML = "";
+
+    document.getElementById(
+        "questionText"
+    ).textContent = "Question";
+
+    document.getElementById(
+        "questionSelector"
+    ).innerHTML = "";
+
+    const startButton =
+        document.getElementById("startButton");
+
+    startButton.disabled = false;
+
+    startButton.textContent =
+        "Start Quiz";
+
+    clearSavedMessage();
+}
+
+
 document
     .getElementById("nextButton")
     .addEventListener(
@@ -625,9 +736,6 @@ document
     .getElementById("restartButton")
     .addEventListener(
         "click",
-        function()
-        {
-            location.reload();
-        }
+        returnToLogin
     );
 
