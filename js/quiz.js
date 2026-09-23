@@ -1,58 +1,128 @@
 let questions = [];
+
 let currentQuestionIndex = 0;
 
 let playerName = "";
 
+let selectedAnswers =
+    new Map();
+
+let answeredQuestions =
+    new Map();
+
 let questionStartTime = 0;
-let selectedAnswer = null;
-
-/*
-    Stores the answer currently selected for each question.
-
-    This is remembered even before the answer is submitted.
-*/
-let selectedAnswers = new Map();
-
-/*
-    Stores the answer that was actually submitted
-    for each question.
-*/
-let answeredQuestions = new Map();
 
 
-
-document
-    .getElementById("startButton")
-    .addEventListener(
-        "click",
-        startQuiz
+const nameScreen =
+    document.getElementById(
+        "nameScreen"
     );
+
+const quizScreen =
+    document.getElementById(
+        "quizScreen"
+    );
+
+const resultScreen =
+    document.getElementById(
+        "resultScreen"
+    );
+
+const playerNameInput =
+    document.getElementById(
+        "playerName"
+    );
+
+const startButton =
+    document.getElementById(
+        "startButton"
+    );
+
+const questionText =
+    document.getElementById(
+        "questionText"
+    );
+
+const answersContainer =
+    document.getElementById(
+        "answers"
+    );
+
+const nextButton =
+    document.getElementById(
+        "nextButton"
+    );
+
+const resultText =
+    document.getElementById(
+        "resultText"
+    );
+
+const restartButton =
+    document.getElementById(
+        "restartButton"
+    );
+
+const questionSelector =
+    document.getElementById(
+        "questionSelector"
+    );
+
+
+startButton.addEventListener(
+    "click",
+    startQuiz
+);
+
+nextButton.addEventListener(
+    "click",
+    nextQuestion
+);
+
+restartButton.addEventListener(
+    "click",
+    returnToLogin
+);
+
+questionSelector.addEventListener(
+    "change",
+    function()
+    {
+        currentQuestionIndex =
+            Number(
+                questionSelector.value
+            );
+
+        showQuestion();
+    }
+);
 
 
 async function startQuiz()
 {
-    const nameInput =
-        document.getElementById("playerName");
-
     playerName =
-        nameInput.value.trim();
+        playerNameInput.value.trim();
 
     if (playerName === "")
     {
-        alert("Please enter your name.");
+        alert(
+            "Please enter your name."
+        );
+
         return;
     }
 
-    const startButton =
-        document.getElementById("startButton");
+    startButton.disabled =
+        true;
 
-    startButton.disabled = true;
-    startButton.textContent = "Loading...";
-
-    const { data, error } =
+    const {
+        data,
+        error
+    } =
         await supabaseClient
             .from("questions")
-            .select(`
+            .select(
+                `
                 id,
                 question,
                 answers (
@@ -60,10 +130,17 @@ async function startQuiz()
                     answer_text,
                     is_correct
                 )
-            `)
-            .order("id", {
-                ascending: false
-            });
+                `
+            )
+            .order(
+                "id",
+                {
+                    ascending: true
+                }
+            );
+
+    startButton.disabled =
+        false;
 
     if (error)
     {
@@ -74,38 +151,41 @@ async function startQuiz()
             error.message
         );
 
-        startButton.disabled = false;
-        startButton.textContent = "Start Quiz";
-
         return;
     }
 
-    if (!data || data.length === 0)
+    if (
+        !data ||
+        data.length === 0
+    )
     {
         alert(
-            "There are no questions in the database."
+            "There are no questions yet."
         );
-
-        startButton.disabled = false;
-        startButton.textContent = "Start Quiz";
 
         return;
     }
 
-    questions = data;
-
-    currentQuestionIndex = 0;
+    questions =
+        data;
 
     /*
-        Start with a completely fresh quiz.
-    */
+     * Start on the last question.
+     */
+    currentQuestionIndex =
+        questions.length - 1;
+
     selectedAnswers.clear();
+
     answeredQuestions.clear();
 
-    document.getElementById("nameScreen").style.display =
+    nameScreen.style.display =
         "none";
 
-    document.getElementById("quizScreen").style.display =
+    resultScreen.style.display =
+        "none";
+
+    quizScreen.style.display =
         "block";
 
     createQuestionSelector();
@@ -116,199 +196,112 @@ async function startQuiz()
 
 function createQuestionSelector()
 {
-    const selector =
-        document.getElementById(
-            "questionSelector"
-        );
+    questionSelector.innerHTML =
+        "";
 
-    selector.innerHTML = "";
-
-    for (
-        let i = 0;
-        i < questions.length;
-        i++
-    )
-    {
-        const option =
-            document.createElement("option");
-
-        option.value = i;
-
-        option.textContent =
-            "Question " +
-            (questions.length - i);
-
-        selector.appendChild(option);
-    }
-
-    selector.value = currentQuestionIndex;
-
-    selector.onchange =
-        function()
+    questions.forEach(
+        function(question, index)
         {
-            currentQuestionIndex =
-                Number(selector.value);
+            const option =
+                document.createElement(
+                    "option"
+                );
 
-            showQuestion();
-        };
+            option.value =
+                index;
+
+            option.textContent =
+                "Question " +
+                (index + 1);
+
+            questionSelector.appendChild(
+                option
+            );
+        }
+    );
+
+    questionSelector.value =
+        currentQuestionIndex;
 }
 
 
 function showQuestion()
 {
-    const question =
-        questions[currentQuestionIndex];
+    if (
+        questions.length === 0
+    )
+    {
+        return;
+    }
 
-    document.getElementById(
-        "questionText"
-    ).textContent =
+    const question =
+        questions[
+            currentQuestionIndex
+        ];
+
+    questionText.textContent =
         question.question;
 
-    const answersContainer =
-        document.getElementById("answers");
+    answersContainer.innerHTML =
+        "";
 
-    answersContainer.innerHTML = "";
-
-    selectedAnswer = null;
-
-    const nextButton =
-        document.getElementById("nextButton");
-
-    nextButton.disabled = true;
+    nextButton.disabled =
+        true;
 
     nextButton.textContent =
         "Submit Answer";
 
-    /*
-        Check if this question was already submitted.
-    */
-    const savedAnswerId =
-        answeredQuestions.get(
-            question.id
-        );
+    questionSelector.value =
+        currentQuestionIndex;
 
-    const alreadyAnswered =
-        savedAnswerId !== undefined;
-
-    /*
-        Check if the player selected an answer
-        before switching to another question.
-    */
-    const savedSelectedAnswerId =
+    const previousAnswer =
         selectedAnswers.get(
             question.id
         );
 
-    /*
-        Make a copy of the answers.
-
-        This lets us shuffle the buttons without
-        changing the answers stored in the question.
-    */
-    const shuffledAnswers =
-        [...question.answers];
-
-    shuffledAnswers.sort(
-        function()
-        {
-            return Math.random() - 0.5;
-        }
-    );
-
-    /*
-        Create one button for every answer.
-    */
-    shuffledAnswers.forEach(
+    question.answers.forEach(
         function(answer)
         {
             const button =
-                document.createElement("button");
+                document.createElement(
+                    "button"
+                );
 
-            button.type = "button";
-
-            button.textContent =
-                answer.answer_text;
+            button.type =
+                "button";
 
             button.className =
                 "answerButton";
 
-            /*
-                The question has already been submitted.
-            */
-            if (alreadyAnswered)
+            button.textContent =
+                answer.answer_text;
+
+            button.dataset.answerId =
+                answer.id;
+
+            if (
+                previousAnswer ===
+                answer.id
+            )
             {
-                button.disabled = true;
-
-                /*
-                    Show the correct answer.
-                */
-                if (answer.is_correct)
-                {
-                    button.classList.add(
-                        "correct"
-                    );
-                }
-
-                /*
-                    Show the answer the player chose.
-                */
-                if (
-                    answer.id ===
-                    savedAnswerId
-                )
-                {
-                    button.classList.add(
-                        "selected"
-                    );
-
-                    /*
-                        If the selected answer was wrong,
-                        show it as incorrect too.
-                    */
-                    if (!answer.is_correct)
-                    {
-                        button.classList.add(
-                            "incorrect"
-                        );
-                    }
-                }
-            }
-            else
-            {
-                /*
-                    Restore a selection that was made
-                    before switching questions.
-                */
-                if (
-                    answer.id ===
-                    savedSelectedAnswerId
-                )
-                {
-                    button.classList.add(
-                        "selected"
-                    );
-
-                    selectedAnswer =
-                        answer;
-
-                    nextButton.disabled =
-                        false;
-                }
-
-                /*
-                    Allow the user to select this answer.
-                */
-                button.addEventListener(
-                    "click",
-                    function()
-                    {
-                        selectAnswer(
-                            answer,
-                            button
-                        );
-                    }
+                button.classList.add(
+                    "selected"
                 );
+
+                nextButton.disabled =
+                    false;
             }
+
+            button.addEventListener(
+                "click",
+                function()
+                {
+                    selectAnswer(
+                        question.id,
+                        answer.id
+                    );
+                }
+            );
 
             answersContainer.appendChild(
                 button
@@ -316,350 +309,165 @@ function showQuestion()
         }
     );
 
-    if (alreadyAnswered)
-    {
-        showSavedMessage();
-    }
-    else
-    {
-        clearSavedMessage();
-    }
-
-    /*
-        Keep the question selector synchronized.
-    */
-    document.getElementById(
-        "questionSelector"
-    ).value =
-        currentQuestionIndex;
-
-    /*
-        Start timing this question.
-    */
     questionStartTime =
-        performance.now();
+        Date.now();
 }
-
-
-
 
 
 function selectAnswer(
-    answer,
-    button
+    questionId,
+    answerId
 )
 {
-    if (selectedAnswer !== null)
-    {
-        return;
-    }
-
-    selectedAnswer = answer;
-
-    /*
-        Remember the selected answer for this question.
-
-        This happens before submitting the result.
-    */
     selectedAnswers.set(
-        questions[currentQuestionIndex].id,
-        answer.id
+        questionId,
+        answerId
     );
 
-    /*
-        Mark the selected answer visually.
-    */
-    button.classList.add("selected");
-
-    const answerButtons =
-        document.querySelectorAll(
+    const buttons =
+        answersContainer.querySelectorAll(
             ".answerButton"
         );
 
-    /*
-        Prevent selecting another answer.
-    */
-    answerButtons.forEach(
-        function(element)
+    buttons.forEach(
+        function(button)
         {
-            element.disabled = true;
+            button.classList.remove(
+                "selected"
+            );
+
+            if (
+                String(
+                    button.dataset.answerId
+                ) ===
+                String(answerId)
+            )
+            {
+                button.classList.add(
+                    "selected"
+                );
+            }
         }
     );
 
-    document.getElementById(
-        "nextButton"
-    ).disabled = false;
+    nextButton.disabled =
+        false;
 }
-
-
 
 
 async function nextQuestion()
 {
-    if (selectedAnswer === null)
+    const question =
+        questions[
+            currentQuestionIndex
+        ];
+
+    if (!question)
     {
         return;
     }
 
-    const question =
-        questions[currentQuestionIndex];
-
-    const elapsedTime =
-        Math.round(
-            performance.now() -
-            questionStartTime
+    const selectedAnswerId =
+        selectedAnswers.get(
+            question.id
         );
 
-    /*
-        Save the result to Supabase.
-    */
-    const { error } =
+    if (
+        selectedAnswerId ===
+        undefined
+    )
+    {
+        return;
+    }
+
+    nextButton.disabled =
+        true;
+
+    const answerTime =
+        Date.now() -
+        questionStartTime;
+
+    const {
+        error
+    } =
         await supabaseClient
             .from("results")
-            .insert({
-                player_name: playerName,
-
-                question_id:
-                    question.id,
-
-                answer_id:
-                    selectedAnswer.id,
-
-                answer_time:
-                    elapsedTime
-            });
-
-    /*
-        The database unique constraint prevents
-        the same player/question combination
-        from being saved twice.
-    */
-    if (error)
-    {
-        console.error(
-            "Failed to save result:",
-            error
-        );
-
-        if (error.code === "23505")
-        {
-            /*
-                The result already exists.
-                Remember the answer that was selected
-                during this session.
-            */
-            answeredQuestions.set(
-                question.id,
-                selectedAnswer.id
+            .insert(
+                {
+                    player_name:
+                        playerName,
+                    question_id:
+                        question.id,
+                    answer_id:
+                        selectedAnswerId,
+                    answer_time:
+                        answerTime
+                }
             );
 
-            /*
-                Check whether all questions have now
-                been answered.
-            */
-            if (
-                answeredQuestions.size ===
-                questions.length
-            )
-            {
-                finishQuiz();
-                return;
-            }
+    if (error)
+    {
+        console.error(error);
 
-            showQuestion();
+        /*
+         * 23505 means that this player
+         * already submitted this question.
+         */
+        if (
+            error.code ===
+            "23505"
+        )
+        {
+            answeredQuestions.set(
+                question.id,
+                selectedAnswerId
+            );
 
-            showSavedMessage(
-                "This question was already answered."
+            setTimeout(
+                finishQuiz,
+                2000
             );
 
             return;
         }
 
         alert(
-            "Failed to save result:\n" +
+            "Failed to save answer:\n" +
             error.message
         );
+
+        nextButton.disabled =
+            false;
 
         return;
     }
 
-    /*
-        Remember which answer was selected.
-
-        This lets us show the same result if the
-        player comes back to this question later.
-    */
     answeredQuestions.set(
         question.id,
-        selectedAnswer.id
+        selectedAnswerId
     );
 
     /*
-        NOW show the correct and wrong answers.
-    */
-    showAnswerResult();
-
-    /*
-        Tell the player that the result was saved.
-    */
-    showSavedMessage();
-
-    /*
-        Check if every question has now been submitted.
-    */
-    if (
-        answeredQuestions.size ===
-        questions.length
-    )
-    {
-        setTimeout(
-            finishQuiz,
-            2000
-        );
-    }
-}
-
-
-function showAnswerResult()
-{
-    const question =
-        questions[currentQuestionIndex];
-
-    const answerButtons =
-        document.querySelectorAll(
-            ".answerButton"
-        );
-
-    answerButtons.forEach(
-        function(button)
-        {
-            const answer =
-                question.answers.find(
-                    function(item)
-                    {
-                        return (
-                            item.answer_text ===
-                            button.textContent
-                        );
-                    }
-                );
-
-            if (!answer)
-            {
-                return;
-            }
-
-            /*
-                Mark the correct answer.
-            */
-            if (answer.is_correct)
-            {
-                button.classList.add(
-                    "correct"
-                );
-            }
-
-            /*
-                Mark the answer that the player chose.
-            */
-            if (
-                answer.id ===
-                selectedAnswer.id
-            )
-            {
-                button.classList.add(
-                    "selected"
-                );
-
-                /*
-                    If the selected answer was wrong,
-                    mark it red.
-                */
-                if (!answer.is_correct)
-                {
-                    button.classList.add(
-                        "incorrect"
-                    );
-                }
-            }
-        }
+     * The quiz finishes after submitting
+     * any one question.
+     */
+    setTimeout(
+        finishQuiz,
+        2000
     );
-
-    document.getElementById(
-        "nextButton"
-    ).disabled = true;
-
-    document.getElementById(
-        "nextButton"
-    ).textContent = "Result Saved";
 }
 
 
-function showSavedMessage(
-    message = "Result saved!"
-)
-{
-    let messageElement =
-        document.getElementById(
-            "resultSavedMessage"
-        );
-
-    if (!messageElement)
-    {
-        messageElement =
-            document.createElement("p");
-
-        messageElement.id =
-            "resultSavedMessage";
-
-        messageElement.style.textAlign =
-            "center";
-
-        messageElement.style.fontWeight =
-            "bold";
-
-        document.getElementById(
-            "nextButton"
-        ).insertAdjacentElement(
-            "afterend",
-            messageElement
-        );
-    }
-
-    messageElement.textContent =
-        message;
-}
-
-
-function clearSavedMessage()
-{
-    const messageElement =
-        document.getElementById(
-            "resultSavedMessage"
-        );
-
-    if (messageElement)
-    {
-        messageElement.textContent = "";
-    }
-}
-
-
-/*
-    Called after the final answer has been submitted.
-
-    The result screen is shown for 2 seconds,
-    then the player is returned to the name screen.
-*/
 function finishQuiz()
 {
-    document.getElementById(
-        "quizScreen"
-    ).style.display = "none";
+    quizScreen.style.display =
+        "none";
 
-    document.getElementById(
-        "resultScreen"
-    ).style.display = "block";
+    resultScreen.style.display =
+        "block";
+
+    resultText.textContent =
+        "Your answer has been submitted.";
 
     setTimeout(
         returnToLogin,
@@ -668,74 +476,51 @@ function finishQuiz()
 }
 
 
-/*
-    Reset everything so the next player starts
-    with a completely fresh quiz.
-*/
 function returnToLogin()
 {
-    document.getElementById(
-        "resultScreen"
-    ).style.display = "none";
+    resultScreen.style.display =
+        "none";
 
-    document.getElementById(
-        "nameScreen"
-    ).style.display = "flex";
+    quizScreen.style.display =
+        "none";
 
-    document.getElementById(
-        "playerName"
-    ).value = "";
+    nameScreen.style.display =
+        "flex";
+
+    playerNameInput.value =
+        "";
 
     questions = [];
 
-    currentQuestionIndex = 0;
+    currentQuestionIndex =
+        0;
 
-    playerName = "";
-
-    questionStartTime = 0;
-
-    selectedAnswer = null;
+    playerName =
+        "";
 
     selectedAnswers.clear();
 
     answeredQuestions.clear();
 
-    document.getElementById(
-        "answers"
-    ).innerHTML = "";
+    answersContainer.innerHTML =
+        "";
 
-    document.getElementById(
-        "questionText"
-    ).textContent = "Question";
+    questionText.textContent =
+        "Question";
 
-    document.getElementById(
-        "questionSelector"
-    ).innerHTML = "";
+    questionSelector.innerHTML =
+        "";
 
-    const startButton =
-        document.getElementById("startButton");
+    nextButton.disabled =
+        true;
 
-    startButton.disabled = false;
+    nextButton.textContent =
+        "Submit Answer";
 
-    startButton.textContent =
-        "Start Quiz";
+    resultText.textContent =
+        "Your score will appear here.";
 
-    clearSavedMessage();
+    startButton.disabled =
+        false;
 }
-
-
-document
-    .getElementById("nextButton")
-    .addEventListener(
-        "click",
-        nextQuestion
-    );
-
-
-document
-    .getElementById("restartButton")
-    .addEventListener(
-        "click",
-        returnToLogin
-    );
 
