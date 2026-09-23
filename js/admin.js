@@ -771,8 +771,6 @@ async function loadResults()
             );
         }
     );
-	console.log("Answers:", answersData);
-	console.log("Results:", resultsData);
 }
 
 async function deleteQuestion(
